@@ -7,12 +7,34 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebApplication1.styles.css" asp-append-version="true" />
+    <style>
+        .btn-celeste {
+            background-color: aqua;
+            color: white;
+            border: none;
+        }
+
+            .btn-celeste:hover {
+                background-color: aqua;
+            }
+
+        .centro {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        body {
+            background-color: aquamarine; 
+        }
+
+        
+    </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">WebApplication1</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index">primera pagina de razer</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -33,6 +55,10 @@
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
+            <div class="centro">
+                <h2>Bienvenidos o welcome</h2>
+                <button class="btn btn-celeste mt-3">Mi Botón</button>
+            </div>
         </main>
     </div>
 
