@@ -4,7 +4,47 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">MP MiPanel</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li><span class="sidebar-icon">🏠</span> Inicio</li>
+            <li><span class="sidebar-icon">🔒</span> Tareas Finalizadas</li>
+            <li><span class="sidebar-icon">🔒</span> Tareas Canceladas</li>
+            <li><span class="sidebar-icon">🔒</span> Privacidad</li>
+        </ul>
+    </aside>
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <span class="dashboard-title">Tareas Asignadas</span>
+        </div>
+        <div class="dashboard-table-wrapper">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Nombre Tarea</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Nombre Tarea</td>
+                        <td>Fecha Vencimiento</td>
+                        <td>Estado</td>
+                        <td>Acciones</td>
+                    </tr>
+                    <tr>
+                        <td>Nombre Tarea</td>
+                        <td>Fecha Vencimiento</td>
+                        <td>Estado</td>
+                        <td>Acciones</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
