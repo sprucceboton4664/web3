@@ -1,0 +1,75 @@
+@page
+@model Todo_listWeb3.Pages.TodoListModel
+@{
+    ViewData["Title"] = "To-Do List";
+}
+<link rel="stylesheet" href="~/css/neuromorphic.css" />
+<div class="sidebar">
+    <div class="sidebar-header">To-Do</div>
+    <button class="sidebar-btn" onclick="showAddTask()">Agregar tarea</button>
+    <button class="sidebar-btn" onclick="loadTasks()">Ver tareas</button>
+</div>
+<div class="main-content">
+    <div id="task-form" class="neuromorphic-card" style="display:none;">
+        <h2>Agregar tarea</h2>
+        <form method="post" onsubmit="return submitTask(event)">
+            <input type="text" id="title" name="title" placeholder="Título" required class="neuromorphic-input" />
+            <textarea id="description" name="description" placeholder="Descripción" class="neuromorphic-input"></textarea>
+            <select id="status" name="status" class="neuromorphic-input">
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+            </select>
+            <input type="number" id="priority" name="priority" min="1" max="5" value="1" class="neuromorphic-input" />
+            <button type="submit" class="neuromorphic-btn">Guardar</button>
+        </form>
+    </div>
+    <div id="tasks-list" class="neuromorphic-list"></div>
+</div>
+<script>
+    async function loadTasks() {
+        document.getElementById('task-form').style.display = 'none';
+        const res = await fetch('http://localhost:8000/tasks/');
+        const tasks = await res.json();
+        let html = '';
+        for (const t of tasks) {
+            html += `<div class='neuromorphic-card task-item'>
+                <div><b>${t.title}</b> <span class='status'>${t.status}</span></div>
+                <div>${t.description || ''}</div>
+                <div>Prioridad: ${t.priority}</div>
+                <button onclick='editTask(${t.id})' class='neuromorphic-btn small'>Editar</button>
+                <button onclick='deleteTask(${t.id})' class='neuromorphic-btn small danger'>Eliminar</button>
+            </div>`;
+        }
+        document.getElementById('tasks-list').innerHTML = html;
+    }
+    function showAddTask() {
+        document.getElementById('task-form').style.display = 'block';
+    }
+    async function submitTask(e) {
+        e.preventDefault();
+        const data = {
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            status: document.getElementById('status').value,
+            priority: parseInt(document.getElementById('priority').value)
+        };
+        await fetch('http://localhost:8000/tasks/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        loadTasks();
+        document.getElementById('task-form').style.display = 'none';
+        return false;
+    }
+    async function deleteTask(id) {
+        await fetch(`http://localhost:8000/tasks/${id}`, { method: 'DELETE' });
+        loadTasks();
+    }
+    function editTask(id) {
+        // Implementar edición (puedes expandir esta función)
+        alert('Funcionalidad de edición no implementada en este ejemplo');
+    }
+    window.onload = loadTasks;
+</script>

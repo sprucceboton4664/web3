@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Todo_listWeb3.Pages
+namespace pruebas.Pages
 {
     public class PrivacyModel : PageModel
     {

@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(135deg, #E8E451 0%, #53CF98 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
@@ -52,16 +52,16 @@ body {
     font-weight: 500;
 }
 
-    .sidebar-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    }
+.sidebar-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
 
-    .sidebar-btn.active {
-        background: rgba(255, 255, 255, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-    }
+.sidebar-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
 
 .main-content {
     margin-left: 300px;
@@ -82,20 +82,19 @@ body {
     animation: fadeInUp 0.6s ease-out;
 }
 
-    .glass-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-    }
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
     }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
     }
 }
 
@@ -115,15 +114,15 @@ body {
     box-sizing: border-box;
 }
 
-    .glass-input::placeholder {
-        color: rgba(255, 255, 255, 0.7);
-    }
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
 
-    .glass-input:focus {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-    }
+.glass-input:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
 
 .glass-btn {
     padding: 12px 30px;
@@ -142,26 +141,26 @@ body {
     letter-spacing: 0.5px;
 }
 
-    .glass-btn:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    }
+.glass-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
 
-    .glass-btn.primary {
-        background: rgba(103, 126, 234, 0.6);
-        border: 1px solid rgba(103, 126, 234, 0.8);
-    }
+.glass-btn.primary {
+    background: rgba(103, 126, 234, 0.6);
+    border: 1px solid rgba(103, 126, 234, 0.8);
+}
 
-    .glass-btn.danger {
-        background: rgba(255, 99, 132, 0.6);
-        border: 1px solid rgba(255, 99, 132, 0.8);
-    }
+.glass-btn.danger {
+    background: rgba(255, 99, 132, 0.6);
+    border: 1px solid rgba(255, 99, 132, 0.8);
+}
 
-    .glass-btn.small {
-        padding: 8px 18px;
-        font-size: 0.9rem;
-    }
+.glass-btn.small {
+    padding: 8px 18px;
+    font-size: 0.9rem;
+}
 
 .tasks-grid {
     display: grid;
@@ -248,9 +247,9 @@ body {
     background: rgba(255, 255, 255, 0.3);
 }
 
-    .priority-dot.active {
-        background: #ffc107;
-    }
+.priority-dot.active {
+    background: #ffc107;
+}
 
 .task-actions {
     display: flex;
@@ -286,16 +285,13 @@ body {
     .sidebar {
         transform: translateX(-100%);
     }
-
-        .sidebar.active {
-            transform: translateX(0);
-        }
-
+    .sidebar.active {
+        transform: translateX(0);
+    }
     .main-content {
         margin-left: 0;
         padding: 20px;
     }
-
     .tasks-grid {
         grid-template-columns: 1fr;
     }

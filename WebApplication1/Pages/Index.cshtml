@@ -1,50 +1,334 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "To-Do List";
+}
+<link rel="stylesheet" href="~/css/neuromorphic.css" />
+
+<div class="sidebar">
+    <div class="sidebar-header">Tasks</div>
+    <button class="sidebar-btn" onclick="showView('add')" id="btn-add">✚ Agregar Tarea</button>
+    <button class="sidebar-btn active" onclick="showView('list')" id="btn-list">📋 Ver Tareas</button>
+    <button class="sidebar-btn" onclick="showView('stats')" id="btn-stats">📊 Estadísticas</button>
+    <button class="sidebar-btn" onclick="filterByStatus('To Do')" id="btn-todo">⏳ Pendientes</button>
+    <button class="sidebar-btn" onclick="filterByStatus('In Progress')" id="btn-progress">🔄 En Progreso</button>
+    <button class="sidebar-btn" onclick="filterByStatus('Done')" id="btn-done">✅ Completadas</button>
+</div>
+
+<div class="main-content">
+    <!-- Formulario para agregar/editar tareas -->
+    <div id="task-form" class="glass-card" style="display:none;">
+        <h2 class="form-title" id="form-title">Agregar Nueva Tarea</h2>
+        <form onsubmit="return submitTask(event)">
+            <input type="hidden" id="task-id" />
+            <div class="form-group">
+                <input type="text" id="title" placeholder="Título de la tarea" required class="glass-input" />
+            </div>
+            <div class="form-group">
+                <textarea id="description" placeholder="Descripción (opcional)" class="glass-input" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <select id="status" class="glass-input">
+                        <option value="To Do">📝 To Do</option>
+                        <option value="In Progress">🔄 In Progress</option>
+                        <option value="Done">✅ Done</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="priority" class="glass-input">
+                        <option value="1">⭐ Prioridad 1</option>
+                        <option value="2">⭐⭐ Prioridad 2</option>
+                        <option value="3">⭐⭐⭐ Prioridad 3</option>
+                        <option value="4">⭐⭐⭐⭐ Prioridad 4</option>
+                        <option value="5">⭐⭐⭐⭐⭐ Prioridad 5</option>
+                    </select>
+                </div>
+            </div>
+            <div class="task-actions">
+                <button type="button" class="glass-btn" onclick="showView('list')">Cancelar</button>
+                <button type="submit" class="glass-btn primary" id="submit-btn">Guardar Tarea</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de tareas -->
+    <div id="tasks-container">
+        <div id="tasks-loading" class="loading" style="display:none;">
+            Cargando tareas...
+        </div>
+        <div id="tasks-grid" class="tasks-grid"></div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div id="stats-container" class="glass-card" style="display:none;">
+        <h2 class="form-title">📊 Estadísticas de Tareas</h2>
+        <div id="stats-content"></div>
+    </div>
+</div>
+
+<script>
+let currentTasks = [];
+let editingTaskId = null;
+
+// Cargar tareas al iniciar
+window.onload = function() {
+    loadTasks();
+};
+
+// Función para mostrar diferentes vistas
+function showView(view) {
+    // Remover clase active de todos los botones
+    document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // Ocultar todas las vistas
+    document.getElementById('task-form').style.display = 'none';
+    document.getElementById('tasks-container').style.display = 'none';
+    document.getElementById('stats-container').style.display = 'none';
+    
+    switch(view) {
+        case 'add':
+            document.getElementById('btn-add').classList.add('active');
+            document.getElementById('task-form').style.display = 'block';
+            document.getElementById('form-title').textContent = 'Agregar Nueva Tarea';
+            document.getElementById('submit-btn').textContent = 'Guardar Tarea';
+            clearForm();
+            break;
+        case 'list':
+            document.getElementById('btn-list').classList.add('active');
+            document.getElementById('tasks-container').style.display = 'block';
+            loadTasks();
+            break;
+        case 'stats':
+            document.getElementById('btn-stats').classList.add('active');
+            document.getElementById('stats-container').style.display = 'block';
+            loadStats();
+            break;
+    }
 }
 
-<div class="dashboard-layout">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <span class="sidebar-title">MP MiPanel</span>
+// Cargar todas las tareas
+async function loadTasks() {
+    try {
+        showLoading(true);
+        const response = await fetch('http://localhost:8000/tasks/');
+        if (!response.ok) throw new Error('Error al cargar tareas');
+        
+        currentTasks = await response.json();
+        displayTasks(currentTasks);
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('tasks-grid').innerHTML = 
+            '<div class="glass-card"><p style="color: white; text-align: center;">Error al cargar las tareas. Verifica que la API esté ejecutándose.</p></div>';
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Filtrar tareas por estado
+async function filterByStatus(status) {
+    try {
+        showLoading(true);
+        const response = await fetch(`http://localhost:8000/tasks/?status_filter=${encodeURIComponent(status)}`);
+        if (!response.ok) throw new Error('Error al filtrar tareas');
+        
+        const filteredTasks = await response.json();
+        displayTasks(filteredTasks);
+        
+        // Activar botón correspondiente
+        document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+        if (status === 'To Do') document.getElementById('btn-todo').classList.add('active');
+        if (status === 'In Progress') document.getElementById('btn-progress').classList.add('active');
+        if (status === 'Done') document.getElementById('btn-done').classList.add('active');
+        
+        document.getElementById('tasks-container').style.display = 'block';
+        document.getElementById('task-form').style.display = 'none';
+        document.getElementById('stats-container').style.display = 'none';
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Mostrar/ocultar loading
+function showLoading(show) {
+    document.getElementById('tasks-loading').style.display = show ? 'block' : 'none';
+}
+
+// Mostrar tareas en la interfaz
+function displayTasks(tasks) {
+    const grid = document.getElementById('tasks-grid');
+    
+    if (tasks.length === 0) {
+        grid.innerHTML = '<div class="glass-card"><p style="color: white; text-align: center;">No hay tareas para mostrar.</p></div>';
+        return;
+    }
+    
+    grid.innerHTML = tasks.map(task => `
+        <div class="glass-card task-item">
+            <div class="task-header">
+                <h3 class="task-title">${task.title}</h3>
+                <span class="task-status status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</span>
+            </div>
+            ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+            <div class="task-meta">
+                <div class="priority-indicator">
+                    <span>Prioridad:</span>
+                    <div class="priority-dots">
+                        ${Array(5).fill(0).map((_, i) => 
+                            `<div class="priority-dot ${i < task.priority ? 'active' : ''}"></div>`
+                        ).join('')}
+                    </div>
+                </div>
+                <small>Creado: ${new Date(task.created_at).toLocaleDateString()}</small>
+            </div>
+            <div class="task-actions">
+                <button onclick="editTask(${task.id})" class="glass-btn small">✏️ Editar</button>
+                <button onclick="deleteTask(${task.id})" class="glass-btn small danger">🗑️ Eliminar</button>
+            </div>
         </div>
-        <ul class="sidebar-menu">
-            <li><span class="sidebar-icon">🏠</span> Inicio</li>
-            <li><span class="sidebar-icon">🔒</span> Tareas Finalizadas</li>
-            <li><span class="sidebar-icon">🔒</span> Tareas Canceladas</li>
-            <li><span class="sidebar-icon">🔒</span> Privacidad</li>
-        </ul>
-    </aside>
-    <section class="dashboard-content">
-        <div class="dashboard-header">
-            <span class="dashboard-title">Tareas Asignadas</span>
-        </div>
-        <div class="dashboard-table-wrapper">
-            <table class="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Nombre Tarea</th>
-                        <th>Fecha Vencimiento</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Nombre Tarea</td>
-                        <td>Fecha Vencimiento</td>
-                        <td>Estado</td>
-                        <td>Acciones</td>
-                    </tr>
-                    <tr>
-                        <td>Nombre Tarea</td>
-                        <td>Fecha Vencimiento</td>
-                        <td>Estado</td>
-                        <td>Acciones</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-</div>
+    `).join('');
+}
+
+// Enviar formulario (crear o actualizar)
+async function submitTask(event) {
+    event.preventDefault();
+    
+    const taskData = {
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value || null,
+        status: document.getElementById('status').value,
+        priority: parseInt(document.getElementById('priority').value)
+    };
+    
+    try {
+        let response;
+        if (editingTaskId) {
+            // Actualizar tarea existente
+            response = await fetch(`http://localhost:8000/tasks/${editingTaskId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(taskData)
+            });
+        } else {
+            // Crear nueva tarea
+            response = await fetch('http://localhost:8000/tasks/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(taskData)
+            });
+        }
+        
+        if (!response.ok) throw new Error('Error al guardar la tarea');
+        
+        showView('list');
+        editingTaskId = null;
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al guardar la tarea');
+    }
+}
+
+// Editar tarea
+async function editTask(id) {
+    try {
+        const response = await fetch(`http://localhost:8000/tasks/${id}`);
+        if (!response.ok) throw new Error('Error al cargar la tarea');
+        
+        const task = await response.json();
+        
+        // Llenar el formulario con los datos de la tarea
+        document.getElementById('task-id').value = task.id;
+        document.getElementById('title').value = task.title;
+        document.getElementById('description').value = task.description || '';
+        document.getElementById('status').value = task.status;
+        document.getElementById('priority').value = task.priority;
+        
+        document.getElementById('form-title').textContent = 'Editar Tarea';
+        document.getElementById('submit-btn').textContent = 'Actualizar Tarea';
+        
+        editingTaskId = id;
+        showView('add');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar la tarea para editar');
+    }
+}
+
+// Eliminar tarea
+async function deleteTask(id) {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta tarea?')) return;
+    
+    try {
+        const response = await fetch(`http://localhost:8000/tasks/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Error al eliminar la tarea');
+        
+        loadTasks();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar la tarea');
+    }
+}
+
+// Limpiar formulario
+function clearForm() {
+    document.getElementById('task-id').value = '';
+    document.getElementById('title').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('status').value = 'To Do';
+    document.getElementById('priority').value = '1';
+    editingTaskId = null;
+}
+
+// Cargar estadísticas
+async function loadStats() {
+    try {
+        const response = await fetch('http://localhost:8000/tasks/');
+        if (!response.ok) throw new Error('Error al cargar estadísticas');
+        
+        const tasks = await response.json();
+        
+        const stats = {
+            total: tasks.length,
+            todo: tasks.filter(t => t.status === 'To Do').length,
+            progress: tasks.filter(t => t.status === 'In Progress').length,
+            done: tasks.filter(t => t.status === 'Done').length,
+            priorities: {}
+        };
+        
+        // Contar por prioridades
+        tasks.forEach(task => {
+            stats.priorities[task.priority] = (stats.priorities[task.priority] || 0) + 1;
+        });
+        
+        document.getElementById('stats-content').innerHTML = `
+            <div style="display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="glass-card">
+                    <h3 style="color: white; margin: 0 0 10px 0;">Total de Tareas</h3>
+                    <p style="color: white; font-size: 2rem; margin: 0;">${stats.total}</p>
+                </div>
+                <div class="glass-card">
+                    <h3 style="color: #ffc107; margin: 0 0 10px 0;">Pendientes</h3>
+                    <p style="color: white; font-size: 2rem; margin: 0;">${stats.todo}</p>
+                </div>
+                <div class="glass-card">
+                    <h3 style="color: #007bff; margin: 0 0 10px 0;">En Progreso</h3>
+                    <p style="color: white; font-size: 2rem; margin: 0;">${stats.progress}</p>
+                </div>
+                <div class="glass-card">
+                    <h3 style="color: #28a745; margin: 0 0 10px 0;">Completadas</h3>
+                    <p style="color: white; font-size: 2rem; margin: 0;">${stats.done}</p>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('stats-content').innerHTML = 
+            '<p style="color: white; text-align: center;">Error al cargar las estadísticas</p>';
+    }
+}
+</script>
